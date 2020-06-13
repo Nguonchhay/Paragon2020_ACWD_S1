@@ -15,17 +15,22 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'prefix' => 'admin',
     'namespace' => 'Admin',
-    'middleware' => 'auth'
+    'middleware' => ['auth', 'html_minifier']
 ], function () {
     Route::get('/home', 'DashboardController@index')->name('home');
 
-    Route::get('/categories', 'CategoryController@index')->name('category.index');
-    Route::get('/categories/create', 'CategoryController@create')->name('category.create');
-    Route::post('/categories', 'CategoryController@store')->name('category.store');
-    Route::get('/categories/{id}/edit', 'CategoryController@edit')->name('category.edit');
-    Route::put('/categories/{id}/update', 'CategoryController@update')->name('category.update');
-    Route::delete('/categories/{id}/delete', 'CategoryController@delete')->name('category.delete');
-    Route::delete('/categories/{id}/delete-ajax', 'CategoryController@deleteAjax')->name('category.deleteAjax');
+    Route::group([
+        'prefix' => 'categories',
+        'middleware' => 'admin_role'
+    ], function () {
+        Route::get('/', 'CategoryController@index')->name('category.index');
+        Route::get('/create', 'CategoryController@create')->name('category.create');
+        Route::post('/', 'CategoryController@store')->name('category.store');
+        Route::get('{id}/edit', 'CategoryController@edit')->name('category.edit');
+        Route::put('{id}/update', 'CategoryController@update')->name('category.update');
+        Route::delete('{id}/delete', 'CategoryController@delete')->name('category.delete');
+        Route::delete('{id}/delete-ajax', 'CategoryController@deleteAjax')->name('category.deleteAjax');
+    });
 
     Route::group([
         'prefix' => 'posts'
@@ -33,15 +38,18 @@ Route::group([
         Route::get('/', 'PostController@index')->name('post.index');
         Route::get('/create', 'PostController@create')->name('post.create');
         Route::post('/', 'PostController@store')->name('post.store');
-        Route::get('/{id}/detail', 'PostController@show')->name('post.show');
-        Route::get('/{id}/edit', 'PostController@edit')->name('post.edit');
-        Route::put('/{id}/update', 'PostController@update')->name('post.update');
-        Route::delete('/{id}/delete-ajax', 'PostController@deleteAjax')->name('post.deleteAjax');
+        Route::get('{id}/detail', 'PostController@show')->name('post.show');
+
+        Route::get('{post}/edit', 'PostController@edit')
+            ->name('post.edit');
+
+        Route::put('{id}/update', 'PostController@update')->name('post.update');
+        Route::delete('/{id}/delete', 'PostController@deleteAjax')->name('post.delete');
     });
 
     Route::get('/page/{slug}', 'PageController@render')->name('page.view');
 });
 
-Route::middleware(['auth'])->get('/', 'Admin\DashboardController@index')->name('home');
+Route::middleware(['auth', 'html_minifier'])->get('/', 'Admin\DashboardController@index')->name('home');
 
 Auth::routes();

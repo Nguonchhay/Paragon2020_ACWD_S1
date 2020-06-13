@@ -7,6 +7,8 @@ use App\Http\Requests\PostStoreRequest;
 use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -14,7 +16,7 @@ class PostController extends Controller
 
     public function index()
     {
-        $posts = Post::has('category')->paginate(2);
+        $posts = Post::has('category')->paginate(25);
         return view('posts.index')->with('posts', $posts);
     }
 
@@ -26,7 +28,10 @@ class PostController extends Controller
 
     public function store(PostStoreRequest $request)
     {
-        $post = Post::create($request->all());
+        $input = $request->all();
+        $input['creator_id'] = Auth::id();
+
+        $post = Post::create($input);
         return redirect(route('post.index'));
     }
 
@@ -37,6 +42,15 @@ class PostController extends Controller
             return redirect(route('post.index'));
         }
         return view('post.show')->with('post', $post);
+    }
+
+    public function edit(Post $post)
+    {
+        // $this->authorize('editPost', $post);
+        if (!Auth::user()->can('editPost', $post)) {
+            abort(403);
+        }
+        dd($post->title);
     }
 }
 
