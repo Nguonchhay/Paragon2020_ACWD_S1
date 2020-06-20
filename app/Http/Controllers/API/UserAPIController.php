@@ -55,4 +55,13 @@ class UserAPIController extends Controller
             ]
         ]);
     }
+
+    public function detail(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Valid credentials',
+            'data' => $request->user()
+        ]);
+    }
 }

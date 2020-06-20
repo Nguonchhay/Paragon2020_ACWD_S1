@@ -53,6 +53,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'api_client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
         'api_key' => \App\Http\Middleware\ApiKeyMiddleware::class,
         'user_token' => \App\Http\Middleware\UserTokenMiddleware::class,
         'admin_role' => \App\Http\Middleware\AdminRoleMiddleware::class,

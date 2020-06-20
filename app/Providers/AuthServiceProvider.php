@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Policies\PostPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -31,5 +32,8 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('edit-post-gate', function (User $user, Post $post) {
             return $user->role === 'admin' || $user->id === $post->creator_id;
         });
+
+        Passport::routes();
+
     }
 }

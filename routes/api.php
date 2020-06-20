@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('login', 'API\UserAPIController@login')->name('api.login');
+
 Route::group([
-    'middleware' => 'api_key',
-    'namespace' => 'API'
+    'namespace' => 'API',
+    'middleware' => ['api_client']
 ], function () {
     Route::get('categories', 'CategoryAPIController@index')->name('api.category.index');
     Route::post('categories', 'CategoryAPIController@store')->name('api.category.store');
@@ -24,11 +26,15 @@ Route::group([
     Route::delete('categories/{category}/delete', 'CategoryAPIController@delete')->name('api.category.delete');
 });
 
-Route::post('login', 'API\UserAPIController@login')->name('api.login');
-
 Route::group([
-    'middleware' => 'user_token',
+    'middleware' => 'auth:api',
     'namespace' => 'API'
 ], function () {
-    Route::post('posts', 'PostAPIController@store')->name('api.post.store');
+    Route::get('me', 'UserAPIController@detail')->name('api.user.detail');
+
+    Route::group([
+        'middleware' => 'admin_role'
+    ], function () {
+        Route::post('posts', 'PostAPIController@store')->name('api.post.store');
+    });
 });
